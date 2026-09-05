@@ -19,6 +19,10 @@ export type Building = {
   y: number;
   w: number;
   h: number;
+  d: string;
+  hole?: string;
+  cx: number;
+  cy: number;
   kind: "housing" | "hospital" | "school" | "market" | "parking" | "industrial" | "civic";
   knowledge: Knowledge;
   damage: Damage;

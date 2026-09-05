@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ProcessPage() {
   return (
-    <div className="grain min-h-dvh bg-bg text-ink">
+    <div className="paper grain min-h-dvh">
       <div className="relative z-10 mx-auto max-w-3xl px-6 py-10">
         <header className="flex items-center justify-between">
           <Link href="/" className="focus-ring flex items-center gap-2 rounded-sm">
@@ -18,7 +18,7 @@ export default function ProcessPage() {
             <span className="text-sm tracking-[0.22em]">ECHO</span>
           </Link>
           <Link href="/command" className="text-sm text-life">
-            Open prototype →
+            Night picture →
           </Link>
         </header>
 
@@ -112,9 +112,9 @@ export default function ProcessPage() {
               <li>At ~45s, resolve the Harbor Street conflict. Keeping both is a valid, safer answer.</li>
               <li>At ~96s, MOLE becomes an echo again. The stale tapping upgrades to two rhythms.</li>
             </ol>
-            <Link
+              <Link
               href="/command"
-              className="mt-8 inline-flex bg-life px-5 py-3 text-sm font-medium text-[#1a120c]"
+              className="mt-8 inline-flex bg-[#1c1612] px-5 py-3 text-sm text-[#efe6d4]"
             >
               Enter Sector 4
             </Link>

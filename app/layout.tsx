@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Instrument_Serif } from "next/font/google";
+import { Archivo, IBM_Plex_Mono, Instrument_Serif, Syne } from "next/font/google";
 import "./globals.css";
 
-const plex = IBM_Plex_Sans({
-  variable: "--font-plex",
+const syne = Syne({
+  variable: "--font-syne",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -20,6 +20,12 @@ const instrument = Instrument_Serif({
   weight: "400",
 });
 
+const archivo = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+});
+
 export const metadata: Metadata = {
   title: "ECHO — Rescue robot command",
   description:
@@ -30,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${plex.variable} ${plexMono.variable} ${instrument.variable} h-full antialiased`}
+      className={`${syne.variable} ${plexMono.variable} ${instrument.variable} ${archivo.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-bg text-ink">{children}</body>
     </html>

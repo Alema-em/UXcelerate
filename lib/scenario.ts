@@ -1,4 +1,5 @@
-import type { Building, Conflict, Discovery, Robot, SimEvent, Street } from "./types";
+import type { Building, Conflict, Discovery, Robot, SimEvent } from "./types";
+export { buildings, streets } from "./city";
 
 export const INCIDENT = {
   name: "Op Halcyon",
@@ -12,44 +13,14 @@ export const INCIDENT = {
 
 export const MISSION_START_SEC = 47 * 60;
 
-export const buildings: Building[] = [
-  { id: "b1", name: "Quay parking structure", x: 188, y: 128, w: 168, h: 148, kind: "parking", knowledge: "confirmed", damage: "collapsed" },
-  { id: "b2", name: "Waterfront flats", x: 92, y: 132, w: 78, h: 142, kind: "housing", knowledge: "confirmed", damage: "intact" },
-  { id: "b3", name: "Harbor House A", x: 378, y: 122, w: 108, h: 154, kind: "housing", knowledge: "confirmed", damage: "partial" },
-  { id: "b4", name: "Harbor House B", x: 502, y: 128, w: 124, h: 148, kind: "housing", knowledge: "inferred", damage: "partial" },
-  { id: "b5", name: "St. Mira Hospital", x: 692, y: 72, w: 176, h: 176, kind: "hospital", knowledge: "confirmed", damage: "partial" },
-  { id: "b6", name: "Hospital annex", x: 708, y: 268, w: 118, h: 78, kind: "hospital", knowledge: "unknown", damage: "unknown" },
-  { id: "b7", name: "North dark block", x: 828, y: 64, w: 132, h: 196, kind: "housing", knowledge: "unknown", damage: "unknown" },
-  { id: "b8", name: "Canal civic hall", x: 188, y: 328, w: 128, h: 88, kind: "civic", knowledge: "inferred", damage: "intact" },
-  { id: "b9", name: "Pump station", x: 92, y: 328, w: 72, h: 88, kind: "industrial", knowledge: "confirmed", damage: "intact" },
-  { id: "b10", name: "Covered market", x: 348, y: 328, w: 168, h: 96, kind: "market", knowledge: "confirmed", damage: "partial" },
-  { id: "b11", name: "Clinic 4", x: 538, y: 332, w: 96, h: 88, kind: "hospital", knowledge: "confirmed", damage: "intact" },
-  { id: "b12", name: "Yard warehouses", x: 828, y: 388, w: 128, h: 148, kind: "industrial", knowledge: "unknown", damage: "unknown" },
-  { id: "b13", name: "Sector 4 school", x: 148, y: 468, w: 168, h: 108, kind: "school", knowledge: "confirmed", damage: "intact" },
-  { id: "b14", name: "South yards", x: 538, y: 468, w: 210, h: 108, kind: "industrial", knowledge: "inferred", damage: "partial" },
-  { id: "b15", name: "Canal cottages", x: 348, y: 468, w: 168, h: 108, kind: "housing", knowledge: "confirmed", damage: "partial" },
-];
-
-export const streets: Street[] = [
-  { id: "s1", name: "Canal Road", d: "M70 118 H960", knowledge: "confirmed" },
-  { id: "s2", name: "Harbor Street", d: "M70 300 H960", knowledge: "confirmed", blocked: true },
-  { id: "s3", name: "Market Row", d: "M70 442 H960", knowledge: "inferred" },
-  { id: "s4", name: "School Lane", d: "M70 596 H700", knowledge: "confirmed" },
-  { id: "s5", name: "1st Ave", d: "M168 60 V620", knowledge: "confirmed" },
-  { id: "s6", name: "2nd Ave", d: "M332 60 V620", knowledge: "confirmed" },
-  { id: "s7", name: "3rd Ave", d: "M492 60 V620", knowledge: "inferred" },
-  { id: "s8", name: "4th Ave", d: "M652 60 V620", knowledge: "confirmed" },
-  { id: "s9", name: "5th Ave", d: "M812 60 V420", knowledge: "unknown" },
-];
-
 export const initialRobots: Robot[] = [
   {
     id: "kite",
     callsign: "KITE-2",
     class: "uav",
     role: "rooftop mapping",
-    x: 548,
-    y: 214,
+    x: 900,
+    y: 250,
     heading: 28,
     battery: 64,
     lastHeardSec: MISSION_START_SEC - 3,
@@ -64,8 +35,8 @@ export const initialRobots: Robot[] = [
     callsign: "MOLE-1",
     class: "crawler",
     role: "confined space",
-    x: 262,
-    y: 204,
+    x: 448,
+    y: 220,
     heading: 210,
     battery: 41,
     lastHeardSec: MISSION_START_SEC - 252,
@@ -80,8 +51,8 @@ export const initialRobots: Robot[] = [
     callsign: "WHISPER-4",
     class: "acoustic",
     role: "voice / knock listen",
-    x: 428,
-    y: 168,
+    x: 700,
+    y: 200,
     heading: 90,
     battery: 77,
     lastHeardSec: MISSION_START_SEC - 6,
@@ -96,8 +67,8 @@ export const initialRobots: Robot[] = [
     callsign: "BEAR-3",
     class: "heavy",
     role: "debris & corridor",
-    x: 718,
-    y: 292,
+    x: 1240,
+    y: 380,
     heading: 0,
     battery: 58,
     lastHeardSec: MISSION_START_SEC - 9,
@@ -112,8 +83,8 @@ export const initialRobots: Robot[] = [
     callsign: "THREAD-5",
     class: "snake",
     role: "void entry",
-    x: 402,
-    y: 372,
+    x: 680,
+    y: 500,
     heading: 320,
     battery: 71,
     lastHeardSec: MISSION_START_SEC - 4,
@@ -128,8 +99,8 @@ export const initialRobots: Robot[] = [
     callsign: "RELAY-6",
     class: "relay",
     role: "mesh mule",
-    x: 338,
-    y: 268,
+    x: 520,
+    y: 360,
     heading: 300,
     battery: 82,
     lastHeardSec: MISSION_START_SEC - 2,
@@ -145,8 +116,8 @@ export const initialDiscoveries: Discovery[] = [
   {
     id: "s14",
     kind: "survivor",
-    x: 424,
-    y: 158,
+    x: 760,
+    y: 190,
     title: "Three voices, Harbor House A",
     detail: "Two adults, one child, east face, roughly 3rd floor. Thermal matches. They answered a knock.",
     confidence: 0.82,
@@ -160,8 +131,8 @@ export const initialDiscoveries: Discovery[] = [
   {
     id: "s09",
     kind: "survivor",
-    x: 254,
-    y: 208,
+    x: 430,
+    y: 230,
     title: "Tapping in the parking void",
     detail: "MOLE-1 heard rhythmic tapping under the pancake, then dropped. This is a life signal with a four-minute silence after it.",
     confidence: 0.54,
@@ -176,8 +147,8 @@ export const initialDiscoveries: Discovery[] = [
   {
     id: "s21",
     kind: "survivor",
-    x: 758,
-    y: 148,
+    x: 1280,
+    y: 180,
     title: "One elderly, hospital corridor",
     detail: "BEAR thermal through a cracked door. Path from the apron is blocked by a fallen slab.",
     confidence: 0.76,
@@ -191,8 +162,8 @@ export const initialDiscoveries: Discovery[] = [
   {
     id: "h7",
     kind: "hazard",
-    x: 470,
-    y: 292,
+    x: 860,
+    y: 360,
     title: "Overpass pancake",
     detail: "Harbor Street overpass has come down. Aftershock risk on the north face. Do not send heavies under.",
     confidence: 0.9,
@@ -203,8 +174,8 @@ export const initialDiscoveries: Discovery[] = [
   {
     id: "h12",
     kind: "hazard",
-    x: 392,
-    y: 396,
+    x: 640,
+    y: 520,
     title: "Gas near market",
     detail: "LEL spike on THREAD. Wind is pushing toward School Lane. People in the school are still a maybe.",
     confidence: 0.71,
@@ -215,8 +186,8 @@ export const initialDiscoveries: Discovery[] = [
   {
     id: "b-harbor",
     kind: "blocked",
-    x: 508,
-    y: 300,
+    x: 900,
+    y: 400,
     title: "Harbor Street cut",
     detail: "Ground unit says the street is closed between 3rd and 4th. Aerial thinks a shoulder may have opened.",
     confidence: 0.6,
@@ -227,8 +198,8 @@ export const initialDiscoveries: Discovery[] = [
   {
     id: "r-alley",
     kind: "route",
-    x: 388,
-    y: 248,
+    x: 560,
+    y: 300,
     title: "Service alley, Harbor A",
     detail: "KITE lidar sees a 1.4m gap behind Harbor House A. Possible THREAD path to the balcony voices.",
     confidence: 0.74,
@@ -246,8 +217,8 @@ export const simEvents: SimEvent[] = [
     discovery: {
       id: "r-culvert",
       kind: "route",
-      x: 128,
-      y: 250,
+      x: 270,
+      y: 300,
       title: "Culvert under the quay",
       detail: "KITE found an open culvert west of the parking structure. Tight. THREAD-class only. Could flank MOLE's last-known.",
       confidence: 0.63,
@@ -278,8 +249,8 @@ export const simEvents: SimEvent[] = [
       id: "c-harbor",
       title: "Harbor Street disagrees",
       detail: "KITE's latest pass shows a 2m shoulder on the south curb. BEAR's last bumper camera, now stale, showed the same span blocked. Aerial is newer. Ground is closer.",
-      x: 508,
-      y: 300,
+      x: 900,
+      y: 400,
       aerial: "Shoulder looks open · 12s · KITE-2",
       ground: "Full block · 1m+ stale · BEAR-3",
     },
@@ -290,8 +261,8 @@ export const simEvents: SimEvent[] = [
     discovery: {
       id: "s27",
       kind: "survivor",
-      x: 214,
-      y: 512,
+      x: 300,
+      y: 760,
       title: "Acoustic, school west wall",
       detail: "WHISPER sidelobe. One adult, intermittent. School is structurally green. Access is good if Harbor is not used.",
       confidence: 0.48,
@@ -314,8 +285,8 @@ export const simEvents: SimEvent[] = [
     discovery: {
       id: "h-facade",
       kind: "hazard",
-      x: 560,
-      y: 140,
+      x: 960,
+      y: 150,
       title: "Harbor House B facade",
       detail: "Aftershock dropped cladding on the north face. Do not stage under. Inferred floorplan is now untrusted.",
       confidence: 0.8,
@@ -334,9 +305,9 @@ export const simEvents: SimEvent[] = [
 
 export const initialConflicts: Conflict[] = [];
 
-export function mapKnownFrom(buildings: Building[]) {
+export function mapKnownFrom(list: Building[]) {
   const weights = { confirmed: 1, inferred: 0.45, unknown: 0 };
-  const total = buildings.reduce((a, b) => a + b.w * b.h, 0);
-  const known = buildings.reduce((a, b) => a + b.w * b.h * weights[b.knowledge], 0);
+  const total = list.reduce((a, b) => a + b.w * b.h, 0);
+  const known = list.reduce((a, b) => a + b.w * b.h * weights[b.knowledge], 0);
   return known / total;
 }

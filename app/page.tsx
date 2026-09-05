@@ -3,87 +3,56 @@ import { Mark } from "@/components/mark";
 
 export default function Home() {
   return (
-    <div className="grain min-h-dvh bg-bg text-ink">
-      <div className="relative z-10 mx-auto flex min-h-dvh max-w-6xl flex-col px-6 py-8">
+    <div className="paper grain min-h-dvh">
+      <div className="relative z-10 mx-auto flex min-h-dvh max-w-5xl flex-col px-6 py-8">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Mark />
-            <span className="text-sm tracking-[0.22em]">ECHO</span>
+            <span className="tracking-[0.28em] text-sm">ECHO</span>
           </div>
-          <nav className="flex gap-6 text-sm text-muted">
-            <Link href="/process" className="focus-ring rounded-sm hover:text-ink">
+          <nav className="flex gap-6 text-sm">
+            <Link href="/process" className="focus-ring opacity-60 hover:opacity-100">
               Design case
             </Link>
-            <Link href="/command" className="focus-ring rounded-sm hover:text-ink">
-              Live picture
+            <Link href="/command" className="focus-ring opacity-60 hover:opacity-100">
+              Night picture
             </Link>
           </nav>
         </header>
 
         <main className="flex flex-1 flex-col justify-center py-16">
-          <p className="mono text-[11px] uppercase tracking-[0.22em] text-mesh">
-            UXcelerate 2026 · Op Halcyon · T+00:47:00
+          <p className="mono text-[11px] uppercase tracking-[0.26em] text-life">
+            Survey no. 4 · Halcyon waterfront · T+47m
           </p>
-          <h1 className="serif mt-4 max-w-4xl text-5xl leading-[1.05] md:text-7xl">
-            The map is already a rumor.
-            <span className="text-life"> The people are not.</span>
+          <h1 className="serif mt-5 max-w-4xl text-5xl leading-[0.95] md:text-7xl">
+            We do not draw the city.
+            <br />
+            We draw the last time it answered.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
-            ECHO is a command interface for rescue robots after an earthquake — when streets vanish,
-            radios drop, and every new ping might be a life, a collapse, or a lie that is four minutes old.
+          <p className="mt-8 max-w-xl text-lg leading-8 opacity-70">
+            ECHO is a night survey for rescue robots. Stone footprints are walked. Ghost lines are guesses. Copper
+            rings are radios. Ember rings are people knocking.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
-            <Link
-              href="/command"
-              className="focus-ring inline-flex items-center bg-life px-5 py-3 text-sm font-medium text-[#1a120c]"
-            >
-              Open the command picture
+            <Link href="/command" className="focus-ring bg-[#1c1612] px-6 py-3 text-sm text-[#efe6d4]">
+              Open the night picture
             </Link>
-            <Link href="/process" className="focus-ring inline-flex items-center border border-ink/25 px-5 py-3 text-sm text-ink">
-              Read how we designed it
+            <Link href="/process" className="focus-ring border border-black/20 px-6 py-3 text-sm">
+              The method
             </Link>
           </div>
-
-          <ul className="mt-16 grid gap-4 md:grid-cols-3">
-            <Constraint
-              k="01"
-              title="Maps are incomplete"
-              body="Unknown is drawn as a material. Inferred streets are dashed. We never fill fog with fake confidence."
-            />
-            <Constraint
-              k="02"
-              title="Radios are unreliable"
-              body="Every pose has an age. When the mesh dies, the picture becomes last-known, and orders queue instead of failing."
-            />
-            <Constraint
-              k="03"
-              title="Discovery never stops"
-              body="Survivors, blockages, hazards, and new routes land in one triage — lives first, then the things that kill them."
-            />
-          </ul>
         </main>
 
-        <footer className="flex flex-wrap items-end justify-between gap-4 border-t border-line pt-6 text-sm text-muted">
-          <p>Halcyon Waterfront, Sector 4 · 6.8 Mw · 6 robots still in the dust</p>
+        <footer className="flex flex-wrap justify-between gap-4 border-t border-black/15 pt-6 text-sm opacity-60">
+          <p>Figure-ground · last-heard rings · paper tickets</p>
           <p>
-            For{" "}
-            <a className="text-ink underline-offset-4 hover:underline" href="https://www.instagram.com/iei_bpdc/">
+            <a className="underline-offset-4 hover:underline" href="https://www.instagram.com/iei_bpdc/">
               IEI BPDC
-            </a>
-            · UXcelerate
+            </a>{" "}
+            · UXcelerate 2026
           </p>
         </footer>
       </div>
     </div>
-  );
-}
-
-function Constraint({ k, title, body }: { k: string; title: string; body: string }) {
-  return (
-    <li className="border border-line bg-bg-2/50 p-5">
-      <p className="mono text-[11px] text-faint">{k}</p>
-      <h2 className="mt-3 text-lg">{title}</h2>
-      <p className="mt-2 text-sm leading-6 text-muted">{body}</p>
-    </li>
   );
 }

@@ -1,11 +1,8 @@
 "use client";
 
-import { buildings, streets } from "@/lib/scenario";
-import { formatAge, staleLevel } from "@/lib/format";
+import { buildings, labels, MAP_H, MAP_W, quayD, streets, waterD } from "@/lib/city";
+import { ageSeconds, formatAge, staleLevel } from "@/lib/format";
 import type { Conflict, Discovery, Robot, Selection } from "@/lib/types";
-
-const W = 1000;
-const H = 640;
 
 function radioDist(a: Robot, b: Robot) {
   return Math.hypot(a.x - b.x, a.y - b.y);
@@ -34,6 +31,7 @@ export function MapView({
   conflict: Conflict | null;
   tremor: boolean;
 }) {
+  const kite = robots.find((r) => r.id === "kite");
   const meshPairs: [Robot, Robot][] = [];
   if (showMesh) {
     for (let i = 0; i < robots.length; i++) {
@@ -41,189 +39,285 @@ export function MapView({
         const a = robots[i];
         const b = robots[j];
         if (a.radio === "lost" && b.radio === "lost") continue;
-        if (radioDist(a, b) < 280 && (a.radio !== "lost" || b.class === "relay" || a.class === "relay")) {
+        if (radioDist(a, b) < 420 && (a.radio !== "lost" || b.class === "relay" || a.class === "relay")) {
           meshPairs.push([a, b]);
         }
       }
     }
   }
 
+  const tasked = discoveries.filter((d) => d.assignedRobot);
+
   return (
-    <div className={`relative h-full w-full overflow-hidden bg-[#0a0e0c] ${tremor ? "tremor" : ""}`}>
+    <div className={`absolute inset-0 overflow-hidden bg-[#0c0b10] ${tremor ? "tremor" : ""}`}>
       <svg
-        viewBox={`0 0 ${W} ${H}`}
+        viewBox={`0 0 ${MAP_W} ${MAP_H}`}
+        preserveAspectRatio="xMidYMid slice"
         className="h-full w-full"
         role="img"
         aria-labelledby="mapTitle mapDesc"
+        onClick={() => onSelect(null)}
       >
-        <title id="mapTitle">Sector 4 common operating picture</title>
+        <title id="mapTitle">Halcyon Sector 4 figure-ground</title>
         <desc id="mapDesc">
-          Map of Halcyon Waterfront. Confirmed buildings are solid. Inferred buildings are dashed.
-          Unknown districts are hatched. Robots and discoveries are marked.
+          Night survey of the waterfront. Stone buildings are what we have walked. Ghost outlines are unmapped.
+          Copper rings are the last echo from each robot. Ember rings are voices.
         </desc>
         <defs>
-          <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
-            <line x1="0" y1="0" x2="0" y2="8" stroke="#2a332e" strokeWidth="2" />
+          <pattern id="stipple" width="6" height="6" patternUnits="userSpaceOnUse">
+            <circle cx="1.2" cy="1.4" r="0.7" fill="#3a342c" />
           </pattern>
-          <pattern id="rubble" width="10" height="10" patternUnits="userSpaceOnUse">
-            <rect width="10" height="10" fill="#1a1512" />
-            <path d="M1 8 L4 3 L8 7" stroke="#5a4032" strokeWidth="1" fill="none" />
-            <rect x="5" y="5" width="3" height="2" fill="#3d2c24" />
+          <pattern id="rubble" width="14" height="14" patternUnits="userSpaceOnUse">
+            <rect width="14" height="14" fill="#2a221c" />
+            <path d="M1 11 L5 4 L10 10 M7 12 L12 6" stroke="#8a6a52" strokeWidth="1.1" fill="none" />
           </pattern>
-          <pattern id="water" width="24" height="12" patternUnits="userSpaceOnUse">
-            <path d="M0 6 Q6 2 12 6 T24 6" fill="none" stroke="#1b3a3a" strokeWidth="1" />
+          <pattern id="water" width="36" height="16" patternUnits="userSpaceOnUse">
+            <path d="M0 10 Q9 4 18 10 T36 10" fill="none" stroke="#3d5c5c" strokeWidth="1.1" opacity="0.55" />
           </pattern>
-          <radialGradient id="fog" cx="85%" cy="20%" r="45%">
-            <stop offset="0%" stopColor="#070908" stopOpacity="0.92" />
-            <stop offset="100%" stopColor="#070908" stopOpacity="0" />
+          <radialGradient id="vignette" cx="50%" cy="48%" r="68%">
+            <stop offset="55%" stopColor="#0c0b10" stopOpacity="0" />
+            <stop offset="100%" stopColor="#0c0b10" stopOpacity="0.55" />
           </radialGradient>
-          <filter id="soft">
-            <feGaussianBlur stdDeviation="0.6" />
+          <filter id="softglow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="2.2" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
           </filter>
         </defs>
 
-        <rect width={W} height={H} fill="#0d1210" />
-        <path d="M0 0 H78 V640 H0 Z" fill="#0c1818" />
-        <path d="M0 0 H78 V640 H0 Z" fill="url(#water)" opacity="0.9" />
-        <text x="18" y="320" fill="#4d6e6c" fontSize="11" fontFamily="IBM Plex Mono, monospace" transform="rotate(-90 18 320)">
-          CANAL
+        <rect width={MAP_W} height={MAP_H} fill="#14110e" />
+        <path d={waterD} fill="#0f2a30" />
+        <path d={waterD} fill="url(#water)" />
+        <path d={quayD} fill="none" stroke="#7ec8c0" strokeWidth="2" opacity="0.45" />
+        <path d="M70 210 H210 M70 210 V248 H198" fill="none" stroke="#8a9a88" strokeWidth="7" opacity="0.4" />
+        <text x="90" y="238" fill="#6a8884" fontSize="10" fontFamily="IBM Plex Mono, monospace">
+          PIER 4
         </text>
 
         {streets.map((s) => (
-          <g key={s.id}>
-            <path
-              d={s.d}
-              fill="none"
-              stroke={s.knowledge === "unknown" ? "transparent" : s.knowledge === "inferred" ? "#2a3530" : "#24302b"}
-              strokeWidth={s.id.startsWith("s") && ["s1", "s2", "s3", "s4"].includes(s.id) ? 22 : 16}
-              strokeDasharray={s.knowledge === "inferred" ? "10 8" : undefined}
-              strokeLinecap="butt"
-            />
-            {s.blocked ? (
-              <path d={s.d} fill="none" stroke="#c45c4a" strokeWidth="2.2" strokeDasharray="6 10" opacity="0.75" />
-            ) : null}
-          </g>
+          <path
+            key={s.id}
+            d={s.d}
+            fill="none"
+            stroke={s.knowledge === "inferred" ? "#3a332c" : "#2c2822"}
+            strokeWidth="42"
+            strokeDasharray={s.knowledge === "inferred" ? "16 14" : undefined}
+            strokeLinecap="round"
+            opacity="0.55"
+          />
         ))}
 
         {buildings.map((b) => {
-          const isUnknown = b.knowledge === "unknown";
-          if (isUnknown && !showUnknown) return null;
+          const unknown = b.knowledge === "unknown";
+          if (unknown && !showUnknown) return null;
+          const selectedB = selected?.type === "building" && selected.id === b.id;
           const fill =
             b.damage === "collapsed"
               ? "url(#rubble)"
-              : isUnknown
-                ? "url(#hatch)"
+              : unknown
+                ? "url(#stipple)"
                 : b.knowledge === "inferred"
-                  ? "#151c18"
-                  : "#1a221e";
-          const stroke =
-            b.damage === "collapsed"
-              ? "#8a5a48"
-              : isUnknown
-                ? "#3a463f"
-                : b.knowledge === "inferred"
-                  ? "#4a5c54"
-                  : "#6d7f74";
-          const selectedB = selected?.type === "building" && selected.id === b.id;
+                  ? "#b7a68c"
+                  : "#e4d5ba";
+          const stroke = selectedB ? "#ff4e1a" : unknown ? "#6a6256" : b.knowledge === "inferred" ? "#8a7a64" : "#2a241c";
+          const combined = b.hole ? `${b.d} ${b.hole}` : b.d;
           return (
             <g
               key={b.id}
               role="button"
               tabIndex={0}
               aria-label={`${b.name}, ${b.knowledge}, ${b.damage}`}
-              onClick={() => onSelect({ type: "building", id: b.id })}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect({ type: "building", id: b.id });
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") onSelect({ type: "building", id: b.id });
               }}
-              className="cursor-pointer focus:outline-none"
+              className="cursor-pointer"
             >
-              <rect
-                x={b.x}
-                y={b.y}
-                width={b.w}
-                height={b.h}
+              <path
+                d={combined}
                 fill={fill}
-                stroke={selectedB ? "#e4a574" : stroke}
-                strokeWidth={selectedB ? 2.4 : b.knowledge === "inferred" ? 1.2 : 1.6}
-                strokeDasharray={b.knowledge === "inferred" ? "5 4" : undefined}
-                rx="3"
+                fillRule="evenodd"
+                stroke={stroke}
+                strokeWidth={selectedB ? 2.8 : unknown ? 1.1 : 1.6}
+                strokeDasharray={b.knowledge === "inferred" || unknown ? "7 5" : undefined}
+                opacity={unknown ? 0.55 : b.knowledge === "inferred" ? 0.72 : 1}
               />
-              {b.damage === "partial" && b.knowledge !== "unknown" ? (
+              {b.damage === "partial" && !unknown ? (
                 <path
-                  d={`M${b.x + 8} ${b.y + b.h - 8} L${b.x + b.w * 0.45} ${b.y + 10} L${b.x + b.w - 10} ${b.y + b.h * 0.55}`}
-                  stroke="#8a6a3a"
-                  strokeWidth="1.4"
+                  d={`M${b.cx - 36} ${b.cy + 28} L${b.cx + 10} ${b.cy - 40} L${b.cx + 48} ${b.cy + 8}`}
                   fill="none"
-                  opacity="0.8"
+                  stroke="#7a4a32"
+                  strokeWidth="2"
+                  opacity="0.7"
                 />
               ) : null}
-              {b.knowledge !== "unknown" ? (
+              {!unknown ? (
                 <text
-                  x={b.x + 8}
-                  y={b.y + 16}
-                  fill="#8f958c"
-                  fontSize="10"
-                  fontFamily="IBM Plex Sans, sans-serif"
+                  x={b.cx}
+                  y={b.cy}
+                  textAnchor="middle"
+                  fill={b.knowledge === "inferred" ? "#4a4034" : "#2a241c"}
+                  fontSize="13"
+                  className="map-label"
+                  letterSpacing="0.12em"
                 >
-                  {b.name}
+                  {b.name.toUpperCase()}
                 </text>
               ) : (
                 <text
-                  x={b.x + 8}
-                  y={b.y + 16}
-                  fill="#5c625c"
-                  fontSize="10"
+                  x={b.cx}
+                  y={b.cy}
+                  textAnchor="middle"
+                  fill="#8a8070"
+                  fontSize="11"
                   fontFamily="IBM Plex Mono, monospace"
                 >
-                  UNMAPPED
+                  UNHEARD
                 </text>
               )}
             </g>
           );
         })}
 
-        {showUnknown ? <rect width={W} height={H} fill="url(#fog)" pointerEvents="none" /> : null}
-
         <path
-          d="M300 430 L640 175"
+          d="M420 720 L980 210"
           fill="none"
-          stroke="#6a4034"
-          strokeWidth="10"
+          stroke="#4a3028"
+          strokeWidth="18"
           strokeLinecap="round"
           opacity="0.55"
         />
         <path
-          d="M300 430 L640 175"
+          d="M420 720 L980 210"
           fill="none"
-          stroke="#c45c4a"
-          strokeWidth="2"
-          strokeDasharray="4 8"
-          opacity="0.9"
+          stroke="#e35d4a"
+          strokeWidth="2.4"
+          strokeDasharray="8 12"
         />
-        <text x="430" y="292" fill="#c45c4a" fontSize="10" fontFamily="IBM Plex Mono, monospace">
+        <text x="640" y="480" fill="#e35d4a" fontSize="12" fontFamily="IBM Plex Mono, monospace" letterSpacing="0.18em">
           OVERPASS DOWN
         </text>
 
+        {labels.map((l) => (
+          <text
+            key={l.name}
+            x={l.x}
+            y={l.y}
+            fill="#7a7266"
+            fontSize="12"
+            letterSpacing="0.28em"
+            className="map-label"
+            transform={l.rotate ? `rotate(${l.rotate} ${l.x} ${l.y})` : undefined}
+          >
+            {l.name}
+          </text>
+        ))}
+
+        <text
+          x="1180"
+          y="920"
+          textAnchor="end"
+          fill="#3a342c"
+          fontSize="52"
+          className="serif"
+          opacity="0.55"
+        >
+          Sector 4
+        </text>
+
+        {kite && kite.radio !== "lost" ? (
+          <g transform={`translate(${kite.x} ${kite.y})`} pointerEvents="none">
+            <g className="sweep">
+              <path d="M0 0 L140 -28 A144 144 0 0 1 140 28 Z" fill="#e0a36a" opacity="0.08" />
+            </g>
+          </g>
+        ) : null}
+
         {meshPairs.map(([a, b]) => {
           const weak = a.radio === "weak" || b.radio === "weak" || a.radio === "lost" || b.radio === "lost";
+          const mx = (a.x + b.x) / 2;
+          const my = (a.y + b.y) / 2 - 28;
           return (
-            <line
+            <path
               key={a.id + b.id}
-              x1={a.x}
-              y1={a.y}
-              x2={b.x}
-              y2={b.y}
-              stroke="#7ebfb8"
-              strokeWidth={weak ? 1 : 1.4}
-              strokeDasharray={weak ? "3 6" : "1 0"}
-              opacity={weak ? 0.35 : 0.55}
+              d={`M${a.x} ${a.y} Q${mx} ${my} ${b.x} ${b.y}`}
+              fill="none"
+              stroke="#e0a36a"
+              strokeWidth={weak ? 1 : 1.5}
+              strokeDasharray={weak ? "4 8" : "2 10"}
+              opacity={weak ? 0.28 : 0.5}
             />
           );
         })}
 
+        {tasked.map((d) => {
+          const r = robots.find((x) => x.id === d.assignedRobot);
+          if (!r) return null;
+          return (
+            <path
+              key={`task-${d.id}`}
+              d={`M${r.x} ${r.y} Q${(r.x + d.x) / 2} ${(r.y + d.y) / 2 - 40} ${d.x} ${d.y}`}
+              fill="none"
+              stroke="#ff4e1a"
+              strokeWidth="1.6"
+              strokeDasharray="5 7"
+              opacity="0.8"
+            />
+          );
+        })}
+
+        {robots.map((r) => {
+          const age = ageSeconds(nowSec, r.lastHeardSec);
+          const stale = staleLevel(nowSec, r.lastHeardSec);
+          const ghost = r.radio === "lost" && showLastKnown;
+          const color = r.radio === "lost" ? "#8a8070" : "#e0a36a";
+          const ring = Math.min(120, 22 + age * 0.28);
+          const sel = selected?.type === "robot" && selected.id === r.id;
+          return (
+            <g
+              key={r.id}
+              transform={`translate(${r.x} ${r.y})`}
+              role="button"
+              tabIndex={0}
+              aria-label={`${r.callsign}, ${r.status}, ${formatAge(nowSec, r.lastHeardSec)}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect({ type: "robot", id: r.id });
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") onSelect({ type: "robot", id: r.id });
+              }}
+              className="cursor-pointer"
+              opacity={ghost ? 0.62 : 1}
+              filter={r.radio !== "lost" ? "url(#softglow)" : undefined}
+            >
+              <circle r={ring} fill="none" stroke={color} strokeWidth="1" opacity={r.radio === "lost" ? 0.25 : 0.35} />
+              <circle r={ring * 0.62} fill="none" stroke={color} strokeWidth="0.8" opacity="0.22" />
+              {r.radio === "lost" ? (
+                <circle r={ring * 1.25} fill="none" stroke={color} strokeWidth="0.6" strokeDasharray="3 7" opacity="0.2" />
+              ) : null}
+              <g transform={`rotate(${r.heading})`}>
+                <path d="M0 -11 L8 9 L0 4 L-8 9 Z" fill={color} stroke="#0c0b10" strokeWidth="1.3" />
+              </g>
+              {sel ? <circle r="18" fill="none" stroke={color} strokeWidth="1.3" strokeDasharray="3 4" /> : null}
+              <text y="28" textAnchor="middle" fill={color} fontSize="11" fontFamily="IBM Plex Mono, monospace">
+                {r.callsign}
+              </text>
+              {stale !== "live" ? (
+                <text y="42" textAnchor="middle" fill="#f5c518" fontSize="9" fontFamily="IBM Plex Mono, monospace">
+                  {formatAge(nowSec, r.lastHeardSec)}
+                </text>
+              ) : null}
+            </g>
+          );
+        })}
+
         {discoveries.map((d) => {
-          const color =
-            d.kind === "survivor" ? "#e4a574" : d.kind === "hazard" ? "#d4a017" : d.kind === "blocked" ? "#c45c4a" : "#a8c5a0";
           const sel = selected?.type === "discovery" && selected.id === d.id;
           return (
             <g
@@ -240,126 +334,55 @@ export function MapView({
                 if (e.key === "Enter" || e.key === " ") onSelect({ type: "discovery", id: d.id });
               }}
               className="cursor-pointer"
+              filter={d.kind === "survivor" ? "url(#softglow)" : undefined}
             >
               {d.kind === "survivor" ? (
-                <circle r="16" fill={color} opacity="0.12" className="pulse-ring origin-center" />
-              ) : null}
-              {d.kind === "survivor" ? (
-                <circle r="7.5" fill={color} stroke="#0b0d0c" strokeWidth="2" />
+                <>
+                  <g className="knock">
+                    <circle r="14" fill="#ff4e1a" opacity="0.2" />
+                  </g>
+                  <g className="knock" style={{ animationDelay: "0.9s" }}>
+                    <circle r="14" fill="#ff4e1a" opacity="0.12" />
+                  </g>
+                  <circle r="6.5" fill="#ff4e1a" stroke="#fff6e8" strokeWidth="1.6" />
+                  {d.people ? (
+                    <text y="4" textAnchor="middle" fill="#fff6e8" fontSize="8" fontFamily="IBM Plex Mono, monospace">
+                      {d.people}
+                    </text>
+                  ) : null}
+                </>
               ) : d.kind === "hazard" ? (
-                <polygon points="0,-9 8,7 -8,7" fill={color} stroke="#0b0d0c" strokeWidth="1.5" />
+                <path d="M0 -11 L10 8 H-10 Z" fill="#f5c518" stroke="#0c0b10" strokeWidth="1.4" />
               ) : d.kind === "blocked" ? (
-                <rect x="-6" y="-6" width="12" height="12" fill={color} stroke="#0b0d0c" strokeWidth="1.5" transform="rotate(45)" />
+                <path d="M-8 -8 L8 8 M8 -8 L-8 8" stroke="#e35d4a" strokeWidth="3" />
               ) : (
-                <path d="M-8 0 L-2 0 M2 0 L8 0 M0 -8 L0 -2 M0 2 L0 8" stroke={color} strokeWidth="2.2" />
+                <path d="M-11 0 H11 M0 -11 V11" stroke="#c8d5b8" strokeWidth="2.2" />
               )}
-              {sel ? <circle r="13" fill="none" stroke={color} strokeWidth="1.4" /> : null}
-            </g>
-          );
-        })}
-
-        {robots.map((r) => {
-          const stale = staleLevel(nowSec, r.lastHeardSec);
-          const ghost = r.radio === "lost" && showLastKnown;
-          const color = r.radio === "lost" ? "#8f958c" : "#7ebfb8";
-          const sel = selected?.type === "robot" && selected.id === r.id;
-          return (
-            <g
-              key={r.id}
-              transform={`translate(${r.x} ${r.y}) rotate(${r.heading})`}
-              role="button"
-              tabIndex={0}
-              aria-label={`${r.callsign}, ${r.status}, ${formatAge(nowSec, r.lastHeardSec)}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect({ type: "robot", id: r.id });
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") onSelect({ type: "robot", id: r.id });
-              }}
-              className="cursor-pointer"
-              opacity={ghost ? 0.55 : 1}
-            >
-              {r.radio !== "lost" ? (
-                <circle r={r.radio === "strong" ? 42 : 24} fill={color} opacity="0.07" />
-              ) : null}
-              <path d="M0 -10 L8 8 L0 4 L-8 8 Z" fill={color} stroke="#0b0d0c" strokeWidth="1.4" />
-              {sel ? <circle r="16" fill="none" stroke={color} strokeWidth="1.3" strokeDasharray="3 3" /> : null}
-              <g transform={`rotate(${-r.heading})`}>
-                <text
-                  y="22"
-                  textAnchor="middle"
-                  fill={color}
-                  fontSize="10"
-                  fontFamily="IBM Plex Mono, monospace"
-                >
-                  {r.callsign}
-                </text>
-                {stale !== "live" ? (
-                  <text
-                    y="34"
-                    textAnchor="middle"
-                    fill="#e0c07a"
-                    fontSize="8"
-                    fontFamily="IBM Plex Mono, monospace"
-                  >
-                    {formatAge(nowSec, r.lastHeardSec)}
-                  </text>
-                ) : null}
-              </g>
+              {sel ? <circle r="16" fill="none" stroke={d.kind === "survivor" ? "#ff4e1a" : "#f3ead8"} strokeWidth="1.3" /> : null}
             </g>
           );
         })}
 
         {conflict && !conflict.resolved ? (
-          <g transform={`translate(${conflict.x} ${conflict.y})`}>
-            <circle r="22" fill="none" stroke="#e0c07a" strokeWidth="1.4" strokeDasharray="4 4" />
-            <text
-              y="-28"
-              textAnchor="middle"
-              fill="#e0c07a"
-              fontSize="10"
-              fontFamily="IBM Plex Mono, monospace"
-            >
-              CONTESTED
+          <g transform={`translate(${conflict.x} ${conflict.y})`} pointerEvents="none">
+            <circle r="34" fill="none" stroke="#f5c518" strokeWidth="1.5" strokeDasharray="5 5" />
+            <text y="-42" textAnchor="middle" fill="#f5c518" fontSize="11" fontFamily="IBM Plex Mono, monospace" letterSpacing="0.2em">
+              TWO ECHOES
             </text>
           </g>
         ) : null}
+
+        <g transform="translate(70,880)" fill="#7a7266" className="map-label">
+          <circle r="22" fill="none" stroke="#7a7266" strokeWidth="1" />
+          <path d="M0 -16 V16 M-16 0 H16" stroke="#7a7266" strokeWidth="1" />
+          <polygon points="0,-20 4,-8 -4,-8" fill="#e0a36a" />
+          <text x="32" y="4" fontSize="11" letterSpacing="0.2em">
+            N · 80 m
+          </text>
+        </g>
+
+        <rect width={MAP_W} height={MAP_H} fill="url(#vignette)" pointerEvents="none" />
       </svg>
-
-      <div className="pointer-events-none absolute bottom-3 left-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.14em] text-muted">
-        <LegendDot color="#1a221e" label="Confirmed" />
-        <LegendDot color="#4a5c54" dashed label="Inferred" />
-        <LegendDot hatch label="Unknown" />
-        <LegendDot color="#e4a574" label="Life" />
-        <LegendDot color="#7ebfb8" label="Robot" />
-        <LegendDot color="#d4a017" label="Hazard" />
-      </div>
     </div>
-  );
-}
-
-function LegendDot({
-  color,
-  label,
-  dashed,
-  hatch,
-}: {
-  color?: string;
-  label: string;
-  dashed?: boolean;
-  hatch?: boolean;
-}) {
-  return (
-    <span className="pointer-events-none inline-flex items-center gap-1.5 rounded-full border border-line bg-bg/70 px-2 py-1">
-      <span
-        className="inline-block h-2.5 w-2.5 rounded-[2px]"
-        style={{
-          background: hatch ? "repeating-linear-gradient(45deg,#2a332e 0 2px,transparent 2px 4px)" : color,
-          outline: dashed ? "1px dashed #8f958c" : undefined,
-        }}
-      />
-      {label}
-    </span>
   );
 }
